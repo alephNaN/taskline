@@ -1,7 +1,23 @@
 <html>
 	<head>
 		<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+		<script src="jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
 		<script type="text/javascript" src="code.js"></script>
+		<link rel="stylesheet" href="jquery-ui-1.9.2.custom/css/ui-lightness/jquery-ui-1.9.2.custom.min.css">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+<!--[if lte IE 8]>
+  
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+  
+<![endif]-->
+<!--[if gt IE 8]><!-->
+  
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+  
+<!--<![endif]-->
+
 
 		<style>
 			body {
@@ -57,31 +73,91 @@
 				visibility: visible;
 			}
 
+		    .button-secondary {
+	           background: rgb(66, 184, 221); /* this is a light blue */
+	            color: white;
+	            border-radius: 4px;
+	            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+	        }
 
+        	.sidebar {
+        		background-color:rgb(61, 79, 93);
+        		color: white;
+        		height: 100%;
+        	}
+        	.sidebar > div {
+        		padding: 20px;
+        	}
+        	h2 {
+        		margin: 0px;
+        	}
+
+        	form {
+        		margin-top: 20px;
+        		margin-bottom: 20px;
+        	}
+        	.content > div {
+        		padding: 20px;
+        	}
 		</style>
 	</head>
 
 
 	<body>
 
-		<div id="start_date">
-			<span>Project Start Time:</span>
+<div id="layout" class="pure-g">
+	<div class="sidebar pure-u-1 pure-u-md-6-24">
+		<div id="projectinfo">
+				<h2>Project Info</h2>
+			<div id="start_date">
+				<span>Project Start Time:</span>
+			</div>
+			<div id="curr_date">
+				<span>Curr Time:</span>
+			</div>
+			<div id="time_diff">
+				<span>Project Duration:</span>:
+			</div>
 		</div>
-		<div id="curr_date">
-			<span>Curr Time:</span>
-		</div>
-		<div id="time_diff">
-			<span>Project Duration:</span>:
-		</div>
-		<button id="add_task">Create New Task</button>
 
-		<form id="entry_form">
-			<button id="generate_random_shit">Generate Random Values</button>
-			<label for="entry_title">Title:</label>
-			<input type="text" id ="entry_title" name="entry_title" value="My First Task" />
-			<label for="entry_duration">Duration:</label>
-			<input type="text" id ="entry_duration" name="entry_duration" value="30" />
-			<label for="entry_color">Color:</label>
+		<div>
+		<button id="show_setstartdate" class="pure-button">
+		    <i class="fa fa-cog"></i>
+		    Set Start Date
+		</button><br/><br/>
+
+		<div id="startdate">
+			<form class="pure-form pure-form-aligned">
+				<div class="pure-control-group">
+					<label for="entry_title">Start date:</label>
+					<input type="text" id="datepicker" class="pure-input-rounded"><br/>
+				</div>
+				<div class="pure-controls">		
+
+					<button id="submitdate" class="pure-button pure-button-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+
+
+		<button id="add_task" class="pure-button">
+		    <i class="fa fa-plus-square"></i>
+		    New Task
+		</button>
+
+		<form id="entry_form" class="pure-form pure-form-aligned">
+			<fieldset>
+				<div class="pure-control-group">
+					<label for="entry_title">Title:</label>
+					<input class="pure-input-rounded" type="text" id ="entry_title" name="entry_title" placeholder="Title" />
+				</div>
+
+				<div class="pure-control-group">
+					<label for="entry_duration">Duration:</label>
+					<input class="pure-input-rounded" type="text" id ="entry_duration" name="entry_duration" placeholder="Minutes" />
+				</div>
+				<div class="pure-control-group">
+					<label for="entry_color">Color:</label>
 			<select id="entry_color">
 			  <option value="purple">purple</option>
 			  <option value="green">green</option>
@@ -90,20 +166,30 @@
 			  <option value="orange">orange</option>
 			  <option value="grey">grey</option>
 			</select>
-			<button id="entry_submit">Submit</button>
+				</div>
+			<div class="pure-controls">		
+				<button id="entry_submit" class="pure-button pure-button-primary">Submit</button> <button id="generate_random_shit" class="button-secondary pure-button">Generate Values</button>
+			</div>
+		</fieldset>
 		</form>
-		<hr>
-		<h2>Tasks</h2>
-		<div id="tasks">
-			<div class="task orange">Get Funding monday <span class="duration">150</span><button class="completedTaskButton">Mark as Completed</button></div>
-			<div class="task grey notcomplete">Write Testing Code <span class="duration">5000</span><button class="completedTaskButton">Mark as Completed</button></div>
-			<div class="task red">Create Documentation <span class="duration">400</span><button class="completedTaskButton">Mark as Completed</button></div>
-			<div class="task green notcomplete">Advertise Product <span class="duration">78</span><button class="completedTaskButton">Mark as Completed</button></div>
-			<div class="task grey">Do English Essay <span class="duration">700</span><button class="completedTaskButton">Mark as Completed</button></div>
-			<div class="task red">Do CS homework <span class="duration">90</span><button class="completedTaskButton">Mark as Completed</button></div>
-			<div class="task green notcomplete">Play Video Games <span class="duration">300</span><button class="completedTaskButton">Mark as Completed</button></div>
-			<div class="task purple">Eat Yogurt <span class="duration">78</span><button class="completedTaskButton">mark as Completed</button></div>
-			<div class="task red notcomplete">Do Yoga <span class="duration">143</span><button class="completedTaskButton">Mark as Completed</button></div>
+	</div>
+	</div>
+	<div class="content pure-u-1 pure-u-md-18-24">
+		<div>
+			<h2>Tasks</h2>
+			<div id="tasks">
+				<div class="task orange">Get Funding monday <span class="duration">150</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task grey notcomplete">Write Testing Code <span class="duration">5000</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task red">Create Documentation <span class="duration">400</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task green notcomplete">Advertise Product <span class="duration">78</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task grey">Do English Essay <span class="duration">700</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task red">Do CS homework <span class="duration">90</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task green notcomplete">Play Video Games <span class="duration">300</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task purple">Eat Yogurt <span class="duration">78</span><button class="completedTaskButton">mark as Completed</button></div>
+				<div class="task red notcomplete">Do Yoga <span class="duration">143</span><button class="completedTaskButton">Mark as Completed</button></div>
+			</div>
 		</div>
+	</div>
+</div>
 	</body>
 </html>
