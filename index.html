@@ -1,0 +1,109 @@
+<html>
+	<head>
+		<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="code.js"></script>
+
+		<style>
+			body {
+				font-family: sans-serif;
+			}
+			#entry_form {
+				display: none
+			}
+
+			#tasks {
+				color: white;
+			}
+
+			.purple { background-color: #9b59b6}
+			.green { background-color: #2ecc71}
+			.blue { background-color: #2980b9}
+			.red {background-color: #c0392b}
+			.orange{background-color: #e67e22}
+			.grey {background-color: #7f8c8d}
+
+			.task {
+				padding: 5px;
+				font-size: 16pt;
+				margin: 5px;
+				border-left: 5px solid green;
+			}
+
+			.duration {
+				float: right;
+				font-weight: bold;
+				background-color: white;
+				color: black;
+				border-radius: 25px;
+				border: 2px;
+				padding: 5px;
+			}
+
+			.expectedComplete {
+				opacity: .5;
+				border-left: 10px solid white;
+			}
+			.expectedComplete.notComplete {
+				border-left: 5px solid red;	
+
+				opacity: 1;
+			}
+
+			button.completedTaskButton {
+				float: right;
+				visibility: hidden;
+			}
+			.notcomplete button.completedTaskButton {
+				visibility: visible;
+			}
+
+
+		</style>
+	</head>
+
+
+	<body>
+
+		<div id="start_date">
+			<span>Project Start Time:</span>
+		</div>
+		<div id="curr_date">
+			<span>Curr Time:</span>
+		</div>
+		<div id="time_diff">
+			<span>Project Duration:</span>:
+		</div>
+		<button id="add_task">Create New Task</button>
+
+		<form id="entry_form">
+			<button id="generate_random_shit">Generate Random Values</button>
+			<label for="entry_title">Title:</label>
+			<input type="text" id ="entry_title" name="entry_title" value="My First Task" />
+			<label for="entry_duration">Duration:</label>
+			<input type="text" id ="entry_duration" name="entry_duration" value="30" />
+			<label for="entry_color">Color:</label>
+			<select id="entry_color">
+			  <option value="purple">purple</option>
+			  <option value="green">green</option>
+			  <option value="blue">blue</option>
+			  <option value="red">red</option>
+			  <option value="orange">orange</option>
+			  <option value="grey">grey</option>
+			</select>
+			<button id="entry_submit">Submit</button>
+		</form>
+		<hr>
+		<h2>Tasks</h2>
+		<div id="tasks">
+			<div class="task orange">Get Funding monday <span class="duration">150</span><button class="completedTaskButton">Mark as Completed</button></div>
+			<div class="task grey notcomplete">Write Testing Code <span class="duration">5000</span><button class="completedTaskButton">Mark as Completed</button></div>
+			<div class="task red">Create Documentation <span class="duration">400</span><button class="completedTaskButton">Mark as Completed</button></div>
+			<div class="task green notcomplete">Advertise Product <span class="duration">78</span><button class="completedTaskButton">Mark as Completed</button></div>
+			<div class="task grey">Do English Essay <span class="duration">700</span><button class="completedTaskButton">Mark as Completed</button></div>
+			<div class="task red">Do CS homework <span class="duration">90</span><button class="completedTaskButton">Mark as Completed</button></div>
+			<div class="task green notcomplete">Play Video Games <span class="duration">300</span><button class="completedTaskButton">Mark as Completed</button></div>
+			<div class="task purple">Eat Yogurt <span class="duration">78</span><button class="completedTaskButton">mark as Completed</button></div>
+			<div class="task red notcomplete">Do Yoga <span class="duration">143</span><button class="completedTaskButton">Mark as Completed</button></div>
+		</div>
+	</body>
+</html>
