@@ -23,6 +23,14 @@
 			body {
 				font-family: sans-serif;
 			}
+			#entry_form {
+				display: none
+			}
+
+			#tasks {
+				color: white;
+			}
+
 			.purple { background-color: #9b59b6}
 			.green { background-color: #2ecc71}
 			.blue { background-color: #2980b9}
@@ -34,7 +42,7 @@
 				padding: 5px;
 				font-size: 16pt;
 				margin: 5px;
-				border: 1px solid green;
+				border-left: 5px solid green;
 			}
 
 			.duration {
@@ -45,6 +53,24 @@
 				border-radius: 25px;
 				border: 2px;
 				padding: 5px;
+			}
+
+			.expectedComplete {
+				opacity: .5;
+				border-left: 10px solid white;
+			}
+			.expectedComplete.notComplete {
+				border-left: 5px solid red;	
+
+				opacity: 1;
+			}
+
+			button.completedTaskButton {
+				float: right;
+				visibility: hidden;
+			}
+			.notcomplete button.completedTaskButton {
+				visibility: visible;
 			}
 
 		    .button-secondary {
@@ -73,74 +99,97 @@
         	.content > div {
         		padding: 20px;
         	}
-
-        	.project.inactive {
-        		display: none;
-        	}
 		</style>
 	</head>
 
 
 	<body>
 
-		<div id="layout" class="pure-g">
-			<div class="sidebar pure-u-1 pure-u-md-6-24">
-				<div id="projectinfo">
-					<h2>Project Info</h2>
-					<div>
-						<span>Project Name:</span>
-						<span id="projectname"></span>
-					</div>
-					<div>
-						<span>Curr Time:</span>
-						<span id="currdate"></span>
-					</div>
-				</div>
-				<div>
-					<h2>Insert Task</h2>
-					<form id="entry_form" class="pure-form pure-form-aligned">
-						<fieldset>
-							<div class="pure-control-group">
-								<label for="entry_title">Title:</label>
-								<input class="pure-input-rounded" type="text" id ="entry_title" name="entry_title" placeholder="Title" />
-							</div>
-
-							<div class="pure-control-group">
-								<label for="entry_duration">Duration:</label>
-								<input class="pure-input-rounded" type="text" id ="entry_duration" name="entry_duration" placeholder="Minutes" />
-							</div>
-							<div class="pure-control-group">
-								<label for="entry_color">Color:</label>
-								<select id="entry_color">
-								  <option value="purple">purple</option>
-								  <option value="green">green</option>
-								  <option value="blue">blue</option>
-								  <option value="red">red</option>
-								  <option value="orange">orange</option>
-								  <option value="grey">grey</option>
-								</select>
-							</div>
-						<div class="pure-controls">		
-							<button id="entry_submit" class="pure-button pure-button-primary">Submit</button> <button id="generate_random_shit" class="button-secondary pure-button">Generate Values</button>
-						</div>
-					</fieldset>
-					</form>
-				</div>
-				<div>
-					<button id="updatenotifs">Update Notifications</button>
-					<select id="projectselect">
-					</select>
-				</div>
+<div id="layout" class="pure-g">
+	<div class="sidebar pure-u-1 pure-u-md-6-24">
+		<div id="projectinfo">
+				<h2>Project Info</h2>
+			<div id="start_date">
+				<span>Project Start Time:</span>
 			</div>
-			<div class="content pure-u-1 pure-u-md-18-24">
-				<div>
-					<h2>Notifications</h2>
-					<div id="notifications">
-					</div>
-					<div id="tasks">
-					</div>
-				</div>
+			<div id="curr_date">
+				<span>Curr Time:</span>
+			</div>
+			<div id="time_diff">
+				<span>Project Duration:</span>:
 			</div>
 		</div>
+
+		<div>
+		<button id="show_setstartdate" class="pure-button">
+		    <i class="fa fa-cog"></i>
+		    Set Start Date
+		</button><br/><br/>
+
+		<div id="startdate">
+			<form class="pure-form pure-form-aligned">
+				<div class="pure-control-group">
+					<label for="entry_title">Start date:</label>
+					<input type="text" id="datepicker" class="pure-input-rounded"><br/>
+				</div>
+				<div class="pure-controls">		
+
+					<button id="submitdate" class="pure-button pure-button-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+
+
+		<button id="add_task" class="pure-button">
+		    <i class="fa fa-plus-square"></i>
+		    New Task
+		</button>
+
+		<form id="entry_form" class="pure-form pure-form-aligned">
+			<fieldset>
+				<div class="pure-control-group">
+					<label for="entry_title">Title:</label>
+					<input class="pure-input-rounded" type="text" id ="entry_title" name="entry_title" placeholder="Title" />
+				</div>
+
+				<div class="pure-control-group">
+					<label for="entry_duration">Duration:</label>
+					<input class="pure-input-rounded" type="text" id ="entry_duration" name="entry_duration" placeholder="Minutes" />
+				</div>
+				<div class="pure-control-group">
+					<label for="entry_color">Color:</label>
+			<select id="entry_color">
+			  <option value="purple">purple</option>
+			  <option value="green">green</option>
+			  <option value="blue">blue</option>
+			  <option value="red">red</option>
+			  <option value="orange">orange</option>
+			  <option value="grey">grey</option>
+			</select>
+				</div>
+			<div class="pure-controls">		
+				<button id="entry_submit" class="pure-button pure-button-primary">Submit</button> <button id="generate_random_shit" class="button-secondary pure-button">Generate Values</button>
+			</div>
+		</fieldset>
+		</form>
+	</div>
+	</div>
+	<div class="content pure-u-1 pure-u-md-18-24">
+		<div>
+			<h2>Tasks</h2>
+			<div id="tasks">
+				<div class="task orange">Get Funding monday <span class="duration">150</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task grey notcomplete">Write Testing Code <span class="duration">5000</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task red">Create Documentation <span class="duration">400</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task green notcomplete">Advertise Product <span class="duration">78</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task grey">Do English Essay <span class="duration">700</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task red">Do CS homework <span class="duration">90</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task green notcomplete">Play Video Games <span class="duration">300</span><button class="completedTaskButton">Mark as Completed</button></div>
+				<div class="task purple">Eat Yogurt <span class="duration">78</span><button class="completedTaskButton">mark as Completed</button></div>
+				<div class="task red notcomplete">Do Yoga <span class="duration">143</span><button class="completedTaskButton">Mark as Completed</button></div>
+			</div>
+		</div>
+	</div>
+</div>
 	</body>
 </html>
