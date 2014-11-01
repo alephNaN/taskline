@@ -84,7 +84,7 @@ Task.prototype.compare = function(other) {
 Task.prototype.toString = function() {
 	return "{Task Object // Title: " + this.title + ", details:" + this.details + ", date: " + this.date + " }";
 }
-Task.prototype.dom = function() {
+Task.prototype.domNode = function() {
 	return this.node;
 }
 Task.prototype.destroy = function() {
@@ -100,8 +100,9 @@ function Project(container, title) {
 	this.title = title || "no project title";
 	this.date = UTIL.dateObjToString(new Date());
 
-	var node = "<div class=\"project\">" +
+	var node = "<div class=\"project emptyproject\">" +
 			"<h2>" + this.title + "</h2>" +
+			"<h3 class=\"emptyprojectmsg\">This project has no tasks</h3>" +
 			"<div class=\"projecttasks\"></div>" +
 			"</div>";
 	this.context = $(node);
@@ -109,19 +110,23 @@ function Project(container, title) {
 	this.container = this.context.children(".projecttasks");
 }
 Project.prototype.addTask = function(task) {
+	if (this.tasks.length === 0) {
+		this.context.removeClass("emptyproject");
+	}
+
 	for(var i = 0; i < this.tasks.length; i++) {
 		var currTask= this.tasks[i];
 		var cmp = currTask.compare(task);
 		if (cmp === 1) {
 			this.tasks.splice(i, 0, task);
 
-			task.dom().insertBefore(this.container.children().eq(i));
+			task.domNode().insertBefore(this.container.children().eq(i));
 			this.highlightTasks([i]);
 			return;
 		}
 	}
 	this.tasks.push(task);
-	this.container.append(task.dom());
+	this.container.append(task.domNode());
 
 	this.highlightTasks([this.tasks.length-1]);
 
@@ -313,24 +318,30 @@ Manager.prototype.containsProject = function(projectTitle) {
 
 $(document).ready(function() {
 	var tasksContainer = $("#tasks");
-	var p = new Project(tasksContainer);
+	var p = new Project(tasksContainer, "Become a kungfu master");
+	var p2 = new Project(tasksContainer, "Open a Restaurant");
 	var q = new NotificationQueue();
 
 	var m = new Manager();
 	m.addProject(p);
+	m.addProject(p2);
 
 	p.addTask(new Task());
-	p.addTask(new Task("Hello there", null, "10/2/2004"));
-	p.addTask(new Task("Milenial Part", null, "10/2/1999"));
-	p.addTask(new Task("9-11", null, "9/11/2001"));
-	p.addTask(new Task("graduate", null, "6/23/2010"));
-	p.addTask(new Task("halloween", null, "10/31/2014"));
-	p.addTask(new Task("youngs party", null, "10/31/2014"));
-	p.addTask(new Task("met julie", null, "10/30/2014"));
-	p.addTask(new Task("the future", null, "3/11/2015"));
-	var p2 = new Project(tasksContainer, "yo");
-	p2.addTask(new Task("woah", null, "11/3/2015"));
-	m.addProject(p2);
+	p.addTask(new Task("Parents killed by ninjas", null, "10/2/1985"));
+	p.addTask(new Task("Beg kungfu master to be student", null, "4/2/1991"));
+	p.addTask(new Task("Become master of kickboxing", null, "9/11/2001"));
+	p.addTask(new Task("Win UFC", null, "6/23/2004"));
+	p.addTask(new Task("Seek revenge", null, "10/31/2014"));
+	p.addTask(new Task("Death", null, "10/31/2017"));
+	p2.addTask(new Task("Dream", null, "11/3/1999"));
+	p2.addTask(new Task("Drop out of college", null, "3/11/2012"));
+	p2.addTask(new Task("Go to france", null, "4/16/2013"));
+	p2.addTask(new Task("Enroll in culinary school", null, "7/16/2013"));
+	p2.addTask(new Task("Graduate from culinary school", null, "10/31/2014"));
+	p2.addTask(new Task("Buy a plot of land", null, "5/17/2016"));
+	p2.addTask(new Task("Print a menu", null, "3/11/2017"));
+	p2.addTask(new Task("Grand opening!", null, "8/11/2018"));
+	p2.addTask(new Task("Bankruptcy. ", null, "6/7/2022"));
 
 	$("#updatenotifs").click(function() {
 		q.clear();

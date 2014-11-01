@@ -78,6 +78,15 @@
         		text-decoration: line-through;
         		opacity: .8;
         	}
+
+        	.project > h3.emptyprojectmsg {
+        		display: none;
+        	}
+        	.project.emptyproject > h3.emptyprojectmsg {
+        		display: block;
+        		font-style: italic;
+        		font-weight: normal
+        	}
 		</style>
 	</head>
 
@@ -93,9 +102,20 @@
 						<span id="projectname"></span>
 					</div>
 					<div>
-						<span>Curr Time:</span>
+						<span>Curr date:</span>
 						<span id="currdate"></span>
 					</div>
+				</div>
+				<div>
+					<h3>View Project</h3>
+					<form id="projectui" class="pure-form pure-form-aligned">
+						<fieldset>
+							<div class="pure-control-group">
+								<label for="projectselect">Project:</label>
+								<select id="projectselect"></select>
+							</div>
+						</fieldset>
+					</form>
 				</div>
 				<div id="projectui">
 					<h3>New Project</h3>
@@ -140,10 +160,6 @@
 						</div>
 					</fieldset>
 					</form>
-				</div>
-				<div>
-					<h3>View Project</h3>
-					<select id="projectselect"></select>
 				</div>
 				<div>
 					<h3>Other</h3>
