@@ -95,7 +95,7 @@ Task.prototype.markPast = function() {
 	this.node.addClass("past");
 }
 
-function Project(container, title) {
+function Project(container, title, m) {
 	this.tasks = [];
 	this.title = title || "no project title";
 	this.date = UTIL.dateObjToString(new Date());
@@ -108,6 +108,7 @@ function Project(container, title) {
 	this.context = $(node);
 	container.append(this.context);
 	this.container = this.context.children(".projecttasks");
+	this.m = m;
 }
 Project.prototype.addTask = function(task) {
 	if (this.tasks.length === 0) {
@@ -134,7 +135,6 @@ Project.prototype.addTask = function(task) {
 		e.preventDefault();
 		if(e.which === 2) {
 			task.destroy();
-			console.log(task.node);
 		}
 	});
 }
@@ -147,18 +147,31 @@ Project.prototype.highlightTasks = function(indices) {
 
 				if(this.checkTaskPast(currTask))
 					currTask.markPast();
+				if (this.checkTaskImportant(currTask)) {
+					this.m.notify(currTask, this.title);
+				}
 			}
 		}
 	} else {
 		for(var i = 0 ; i < this.tasks.length; i++) {
-			if(this.checkTaskPast())
-				this.tasks[i].markPast();
+			var currTask = this.tasks[i];
+			if(this.checkTaskPast(currTask))
+				currTask.markPast();
+			if (this.checkTaskImportant(currTask)) {
+				console.log("another important");
+				this.m.notify(currTask, this.title)
+			}
 		}
 	}
 }
 Project.prototype.checkTaskPast = function(task) {
 	var cmp = UTIL.dateComparator(task.date, this.date);
 	if(cmp < 0)
+		return true;
+}
+Project.prototype.checkTaskImportant = function(task) {
+	var cmp = UTIL.dateComparator(task.date, this.date);
+	if (cmp === 0)
 		return true;
 }
 
@@ -200,30 +213,28 @@ function NotificationQueue() {
 		self.update();
 	}, 5000);
 }
-NotificationQueue.prototype.addNotification = function(notif) {
-	console.log("adding. " + this.notifs.length);
+NotificationQueue.prototype.push = function(notif) {
 	this.notifs.push(notif);
-	this.upTodate = false;
-	console.log("done. " + this.notifs.length);
+	this.upToDate = false;
+	console.log(this.upToDate);
 }
 NotificationQueue.prototype.update = function() {
 	if (!this.upToDate) {
-		console.log("updating");
-		console.log(this.notifs.length);
-		for(var i = 0 ; i < this.notifs.length ; i++) {
-			var node = "<div class=\"notification\"> hello world </div>";
-			node = $(node)
-			$("#notifications").append(node);
-		}
-
+		var currNotif = this.notifs[this.notifs.length - 1];
+		var currProject = currNotif.projectTitle;
+		var currTask = currNotif.task.title;
+		var node = "<div class=\"notification\">" + currTask + "</div>";
+		node = $(node)
+		node.data("project", currProject);
+		$("#notifications").append(node);
+	
 		this.upToDate = true;
 	}
 }
-NotificationQueue.prototype.clear = function() {
-	this.notifs = [];
-	$("#notifications").empty();
-	this.upToDate = false;
+NotificationQueue.prototype.viewingContext = function(context) {
+	this.context = context;
 }
+
 NotificationQueue.prototype.print = function() {
 	for (var i = 0 ; i < this.notifs.length; i++) {
 		console.log(this.notifs[i]);
@@ -233,7 +244,6 @@ NotificationQueue.prototype.print = function() {
 function Manager() {
 	this.projects = {};
 	this.currProject = -1;
-
 	var self = this;
 
 	var ENTRY_FORM_ID = "entry_form";
@@ -272,7 +282,10 @@ function Manager() {
 		}
 	});
 }
-
+Manager.prototype.notify = function(task, projectTitle) {
+	console.log('unimplemented');
+	// update the notif q
+}
 Manager.prototype.addProject = function(project) {
 	var isDuplicate = this.containsProject(project.title);
 	if(isDuplicate) {
@@ -317,12 +330,16 @@ Manager.prototype.containsProject = function(projectTitle) {
 }
 
 $(document).ready(function() {
-	var tasksContainer = $("#tasks");
-	var p = new Project(tasksContainer, "Become a kungfu master");
-	var p2 = new Project(tasksContainer, "Open a Restaurant");
-	var q = new NotificationQueue();
 
 	var m = new Manager();
+
+	var tasksContainer = $("#tasks");
+
+	var p = new Project(tasksContainer, "Become a kungfu master", m);
+	var p2 = new Project(tasksContainer, "Open a Restaurant", m);
+	
+
+	
 	m.addProject(p);
 	m.addProject(p2);
 
@@ -338,19 +355,10 @@ $(document).ready(function() {
 	p2.addTask(new Task("Go to france", null, "4/16/2013"));
 	p2.addTask(new Task("Enroll in culinary school", null, "7/16/2013"));
 	p2.addTask(new Task("Graduate from culinary school", null, "10/31/2014"));
-	p2.addTask(new Task("Buy a plot of land", null, "5/17/2016"));
+	p2.addTask(new Task("Buy a plot of land", null, "11/1/2014"));
 	p2.addTask(new Task("Print a menu", null, "3/11/2017"));
 	p2.addTask(new Task("Grand opening!", null, "8/11/2018"));
 	p2.addTask(new Task("Bankruptcy. ", null, "6/7/2022"));
-
-	$("#updatenotifs").click(function() {
-		q.clear();
-		var notifs = p.getNotifications();
-		for(var i = 0 ; i < notifs.length; i++) {
-			q.addNotification(notifs[i]);
-		}
-
-	});
 
 	var ENTRY_FORM_ID = "entry_form";
 	$("#generate_random_shit").click(function(e){
