@@ -62,12 +62,20 @@ function Super(obj) {
 }
 
 
-function Task(title, details, date, color) {
+function Task(title, details, date, color, past) {
 	this.title = title || "no title";
 	this.details = details || "no details";
 	// pad year to 4 digits if only 2 digits
 	this.date = date || "10/24/2014";
 	this.color = color || "grey";
+
+	var nodeHTML = "<div class=\"task\">" + 
+					"<span class=\"title\">" + this.title + "</span>" +
+					"<span class=\"duration\">" + this.date +"</span>";
+	this.node = $(nodeHTML);
+	this.node.addClass(this.color);
+
+	var self = this;
 }
 // return 1 if this is greater, -1 if other is greater
 Task.prototype.compare = function(other) {
@@ -77,26 +85,28 @@ Task.prototype.toString = function() {
 	return "{Task Object // Title: " + this.title + ", details:" + this.details + ", date: " + this.date + " }";
 }
 Task.prototype.dom = function() {
-	var node = "<div class=\"task\">" + 
-					"<span class=\"title\">" + this.title + "</span>" +
-					"<span class=\"duration\">" + this.date +"</span>";
-	node = $(node);
-	node.addClass(this.color);
-	return node;
+	return this.node;
+}
+Task.prototype.destroy = function() {
+	this.node.remove();
+	this.node = null;
+}
+Task.prototype.markPast = function() {
+	this.node.addClass("past");
 }
 
 function Project(container, title) {
 	this.tasks = [];
 	this.title = title || "no project title";
 	this.date = UTIL.dateObjToString(new Date());
-	this.context = $("#tasks").children().length;
 
-	container.append("<div class=\"project\">" +
+	var node = "<div class=\"project\">" +
 			"<h2>" + this.title + "</h2>" +
 			"<div class=\"projecttasks\"></div>" +
-			"</div>");
-
-	this.container = container.children().eq(this.context).children(".projecttasks");
+			"</div>";
+	this.context = $(node);
+	container.append(this.context);
+	this.container = this.context.children(".projecttasks");
 }
 Project.prototype.addTask = function(task) {
 	for(var i = 0; i < this.tasks.length; i++) {
@@ -106,19 +116,56 @@ Project.prototype.addTask = function(task) {
 			this.tasks.splice(i, 0, task);
 
 			task.dom().insertBefore(this.container.children().eq(i));
+			this.highlightTasks([i]);
 			return;
 		}
 	}
 	this.tasks.push(task);
 	this.container.append(task.dom());
+
+	this.highlightTasks([this.tasks.length-1]);
+
+	task.node.bind("mousedown",function(e) {
+		e.preventDefault();
+		if(e.which === 2) {
+			task.destroy();
+			console.log(task.node);
+		}
+	});
 }
+Project.prototype.highlightTasks = function(indices) {
+	if(indices) {
+		for(var i = 0 ; i < indices.length; i++) {
+			var index = indices[i];
+			if(index >= 0 && index < this.tasks.length) {
+				var currTask = this.tasks[index];
+
+				if(this.checkTaskPast(currTask))
+					currTask.markPast();
+			}
+		}
+	} else {
+		for(var i = 0 ; i < this.tasks.length; i++) {
+			if(this.checkTaskPast())
+				this.tasks[i].markPast();
+		}
+	}
+}
+Project.prototype.checkTaskPast = function(task) {
+	var cmp = UTIL.dateComparator(task.date, this.date);
+	if(cmp < 0)
+		return true;
+}
+
 Project.prototype.getNotifications = function() {
 	var notifs = [];
 	for (var i = 0 ; i < this.tasks.length; i++) {
 		var task = this.tasks[i];
-		if ( UTIL.dateComparator(task.date, this.date) === 0) {
+
+		var comparison = UTIL.dateComparator(task.date, this.date);
+		if (comparison === 0) {
 			notifs.push(new Notification(task, this.title ));
-		}
+		} 
 	}
 
 	return notifs;
@@ -128,7 +175,12 @@ Project.prototype.print = function() {
 		console.log(this.tasks[i].toString());
 	}
 }
-
+Project.prototype.destroy = function() {
+	for(var i = 0; i < this.tasks.length; i++) {
+		this.tasks[i].destroy();
+	}
+	this.context.remove();
+}
 function Notification(task, projectTitle) {
 	this.task = task || new Task();
 	this.projectTitle = projectTitle || "unknown projectTitle";
@@ -199,8 +251,29 @@ function Manager() {
 		p.addTask(new Task(entryTitle, null, entryDuration, entryColor));
 	});
 
+	$("#project_submit").click(function(e) {
+		e.preventDefault();
+
+		var project_title_selector = "#projectui [name=project_title]";
+		var inputVal = $(project_title_selector).val();
+		var projectTitle = inputVal || "no project title";
+
+		var tasksContainer = $("#tasks");
+		var p = new Project(tasksContainer, projectTitle);
+
+		if(!self.addProject(p)) {
+			p.destroy();
+			alert("Cannot add project: \"" + p.title + "\". A project with the same name already exists.");
+		}
+	});
 }
+
 Manager.prototype.addProject = function(project) {
+	var isDuplicate = this.containsProject(project.title);
+	if(isDuplicate) {
+		return false;
+	}
+
 	this.projects[project.title] = project;
 	this.setContext(project.title);
 
@@ -214,8 +287,9 @@ Manager.prototype.addProject = function(project) {
 	});
 
 	$("#projectselect").val(this.currProject);
-}
 
+	return true;
+}
 Manager.prototype.getCurrContext = function() {
 	if (!this.projects || this.projects.length === 0)
 		return null;
@@ -233,7 +307,9 @@ Manager.prototype.setContext = function(ctx) {
 	$(".project").addClass("inactive");
 	p.container.parent().removeClass("inactive");
 }
-
+Manager.prototype.containsProject = function(projectTitle) {
+	return projectTitle in this.projects;
+}
 
 $(document).ready(function() {
 	var tasksContainer = $("#tasks");
@@ -252,8 +328,6 @@ $(document).ready(function() {
 	p.addTask(new Task("youngs party", null, "10/31/2014"));
 	p.addTask(new Task("met julie", null, "10/30/2014"));
 	p.addTask(new Task("the future", null, "3/11/2015"));
-	p.print();
-
 	var p2 = new Project(tasksContainer, "yo");
 	p2.addTask(new Task("woah", null, "11/3/2015"));
 	m.addProject(p2);
@@ -265,7 +339,6 @@ $(document).ready(function() {
 			q.addNotification(notifs[i]);
 		}
 
-		q.print();
 	});
 
 	var ENTRY_FORM_ID = "entry_form";
