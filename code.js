@@ -69,6 +69,7 @@ function Task(title, details, date, color, description) {
 	this.date = date || "10/24/2014";
 	this.color = color || "grey";
 	this.description = description || "no description";
+	this.editing = false;
 
 	var nodeHTML = "<div class=\"task\"><div class=\"header\">" +
 					"<span class=\"title\">" + this.title + "</span>" +
@@ -108,34 +109,39 @@ Task.prototype.isEqual = function(other) {
 	return equal;
 }
 Task.prototype.edit = function(other) {
-	this.node.unbind("click");
+	if(this.editing)
+		return;
+
+	this.editing = true;
 	var container = this.node.children(".taskedit");
-	var form = "<form>" +
-				"<textarea></textarea><button>Submit</button></form>";
+	var form = "<form class=\"pure-form pure-form-aligned\">" +
+				"<legend>Edit Task</legend>" +
+				"<div class=\"pure-control-group\"><label>Description</label><textarea></textarea></div>" +
+				"<div class=\"pure-controls\">" +
+				"<button class=\"pure-button pure-button-primary\">Submit</button></div></form>";
 	form = $(form);
 	form.click(function(e) {
 		e.stopPropagation();
 	});
 	var self = this;
-	form.children("button").click(function(e) {
+	form.find("button").click(function(e) {
 		e.preventDefault();
 
-		var newDescription = form.children("textarea").val();
+		var newDescription = form.find("textarea").val();
 		self.description = newDescription;
 		
+		var title = form.find("input[name='title']").val();
+
 		var descriptionContainer = self.node.children(".description");
 		if (newDescription) {
 			descriptionContainer.empty();
 			descriptionContainer.append(newDescription);
 		}
 		container.empty();
-		self.editing = false;
+
+		setTimeout(function() { self.editing = false}, 2000);
 	});
 	container.append(form);
-
-	this.node.click(function() {
-		self.edit;
-	});
 }
 
 function Project(container, title, m) {
