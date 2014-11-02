@@ -93,6 +93,12 @@
         	.notif.selectedNotif {
         		display: block;
         	}
+        	.task > .header {
+        		font-weight: bold;
+        	}
+        	.task > .description {
+        		font-style: italic;
+        	}
 		</style>
 	</head>
 
@@ -149,6 +155,10 @@
 							<div class="pure-control-group">
 								<label for="entry_duration">Date:</label>
 								<input class="pure-input-rounded" type="text" id ="entry_duration" name="entry_duration" placeholder="MM/DD/YYYY" />
+							</div>
+							<div class="pure-control-group">
+								<label for="entry_description">Description:</label>
+								<textarea rows="3"></textarea>
 							</div>
 							<div class="pure-control-group">
 								<label for="entry_color">Color:</label>

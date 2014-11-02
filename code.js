@@ -62,16 +62,18 @@ function Super(obj) {
 }
 
 
-function Task(title, details, date, color, past) {
+function Task(title, details, date, color, description) {
 	this.title = title || "no title";
 	this.details = details || "no details";
 	// pad year to 4 digits if only 2 digits
 	this.date = date || "10/24/2014";
 	this.color = color || "grey";
+	this.description = description || "no description";
 
-	var nodeHTML = "<div class=\"task\">" + 
+	var nodeHTML = "<div class=\"task\"><div class=\"header\">" +
 					"<span class=\"title\">" + this.title + "</span>" +
-					"<span class=\"duration\">" + this.date +"</span>";
+					"<span class=\"duration\">" + this.date +"</span></div>" +
+					"<div class=\"description\">"+ this.description + "</div></div>";
 	this.node = $(nodeHTML);
 	this.node.addClass(this.color);
 
@@ -100,6 +102,7 @@ Task.prototype.isEqual = function(other) {
 	var equal = sameTitle && sameDate;
 	return equal;
 }
+
 function Project(container, title, m) {
 	this.tasks = [];
 	this.title = title || "no project title";
@@ -292,12 +295,13 @@ function Manager() {
 		var entry_title_selector = "#" + ENTRY_FORM_ID + " [name=entry_title]";
 		var entry_duration_selector = "#" + ENTRY_FORM_ID + " [name=entry_duration]";
 		var entry_color_selector = "#" + ENTRY_FORM_ID + " select";
+		var entry_description_selector = "#" + ENTRY_FORM_ID +  " textarea";
 
 		var entryTitle = $(entry_title_selector).val();
 		var entryDuration = $(entry_duration_selector).val();
 		var entryColor = $(entry_color_selector).val();
-
-		p.addTask(new Task(entryTitle, null, entryDuration, entryColor));
+		var entryDescription = $(entry_description_selector).val();
+		p.addTask(new Task(entryTitle, null, entryDuration, entryColor, entryDescription));
 	});
 
 	$("#project_submit").click(function(e) {
@@ -384,6 +388,8 @@ Manager.prototype.notify = function(task, context, e) {
 	this.q.addNotif(n);
 }
 $(document).ready(function() {
+
+	$("#entry_duration").datepicker();
 
 	var m = new Manager();
 
