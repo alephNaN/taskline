@@ -51,9 +51,17 @@ var UTIL = (function() {
 		return s;
 	}
 
+	this.colorContext = {
+		"green": "list-group-item-success",
+		"lightblue": "list-group-item-info",
+		"red": "list-group-item-danger",
+		"orange": "list-group-item-warning"
+	}
+
 	return {
 		dateComparator: dateComparator,
-		dateObjToString: dateObjToString
+		dateObjToString: dateObjToString,
+		colorContext: colorContext
 	}
 })();
 // invoke parent constructor of this
@@ -67,23 +75,29 @@ function Task(title, details, date, color, description) {
 	this.details = details || "no details";
 	// pad year to 4 digits if only 2 digits
 	this.date = date || "10/24/2014";
-	this.color = color || "grey";
+	this.color = UTIL.colorContext[color]|| UTIL.colorContext["lightblue"];
 	this.description = description || "no description";
 	this.editing = false;
 
-	var nodeHTML = "<div class=\"task\"><div class=\"header\">" +
-					"<span class=\"title\">" + this.title + "</span>" +
-					"<span class=\"duration\">" + this.date +"</span></div>" +
-					"<div class=\"description\">"+ this.description + "</div>" +
-					"<div class=\"taskedit\"><\/div></div>";
+	var nodeHTML = "<a class=\"list-group-item " + this.color +"\">" +
+	  			  "<button type=\"button\" class=\"close\" data-dismiss=\"alert\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>" +
+	  			  "<div class=\"task-header\"><strong><span class=\"task-title\">" + this.title + "</span></strong> </div>" +
+	  			  "<div><span class=\"task-date\">" + this.date + "</span>" +
+	  			  "</div>" +
+				  "<div class=\"task-description\">" + this.description + 
+				  "</div><div class=\"taskedit\"></div></a>";
+
 	this.node = $(nodeHTML);
-	this.node.addClass(this.color);
 
 	var self = this;
 
 	this.node.click(function() {
 		self.edit();
 	});
+}
+Task.prototype.today = function()  {
+	var today = "<span class=\"label label-success\">Today!</span>";
+	this.node.find(".task-header").append(today);
 }
 // return 1 if this is greater, -1 if other is greater
 Task.prototype.compare = function(other) {
@@ -114,11 +128,13 @@ Task.prototype.edit = function(other) {
 
 	this.editing = true;
 	var container = this.node.children(".taskedit");
-	var form = "<form class=\"pure-form pure-form-aligned\">" +
-				"<legend>Edit Task</legend>" +
-				"<div class=\"pure-control-group\"><label>Description</label><textarea></textarea></div>" +
-				"<div class=\"pure-controls\">" +
-				"<button class=\"pure-button pure-button-primary\">Submit</button></div></form>";
+
+
+	var form = "<div class=\"panel panel-default\">" +
+				"<div class=\"panel-heading\">Edit Description</div>" +
+				"<div class=\"panel-body\"><form>" +
+				"<textarea class=\"form-control\"></textarea>" +
+				"<button class=\"btn btn-primary\">Submit</button></form></div></div>";
 	form = $(form);
 	form.click(function(e) {
 		e.stopPropagation();
@@ -129,10 +145,9 @@ Task.prototype.edit = function(other) {
 
 		var newDescription = form.find("textarea").val();
 		self.description = newDescription;
-		
-		var title = form.find("input[name='title']").val();
 
-		var descriptionContainer = self.node.children(".description");
+		var descriptionContainer = self.node.find(".task-description");
+		console.log(descriptionContainer);
 		if (newDescription) {
 			descriptionContainer.empty();
 			descriptionContainer.append(newDescription);
@@ -149,11 +164,10 @@ function Project(container, title, m) {
 	this.title = title || "no project title";
 	this.date = UTIL.dateObjToString(new Date());
 
-	var node = "<div class=\"project emptyproject\">" +
-			"<h2>" + this.title + "</h2>" +
+	var node = "<ul class=\"list-group project emptyproject\">" +
 			"<h3 class=\"emptyprojectmsg\">This project has no tasks</h3>" +
 			"<div class=\"projecttasks\"></div>" +
-			"</div>";
+			"</ul>";
 	this.context = $(node);
 	container.append(this.context);
 	this.container = this.context.children(".projecttasks");
@@ -181,16 +195,16 @@ Project.prototype.addTask = function(task) {
 	}
 	
 	if(this.checkTaskImportant(task)) {
+		task.today();
 		this.m.notify(task, this.title);
 	}
 	var self = this;
-	task.node.bind("mousedown",function(e) {
+	task.node.find("button").click(function(e) {
 		// this line is for right click , but its interfering with form elements
 		// e.preventDefault();
-		if(e.which === 2) {
-			self.m.notify(task, self.title, "remove");
-			task.destroy();
-		}
+		self.m.notify(task, self.title, "remove");
+		task.destroy();
+
 	});
 }
 Project.prototype.highlightTasks = function(indices) {
@@ -267,11 +281,14 @@ NotificationQ.prototype.addNotif = function(notif) {
 	var key = notif.projectTitle;
 	var task = notif.task;
 
-	var node = "<div class=\"notif\"><span class=\"context\">" + key + "</span> : " + task.title + "</div>";
+	var node = "<li class=\"list-group-item notif\">" +
+			   "<span class=\"context\">" + key + "</span> : " + task.title + 
+			   "</li>";
 	node = $(node);
 	if (this.context === key) {
 		node.addClass("selectedNotif");
 	}
+	console.log($("#notifications"));
 	$("#notifications").append(node);
 
 	var taskTuple = {
@@ -312,11 +329,16 @@ NotificationQ.prototype.setContext = function(context) {
 
 	var filteredNotifs = $("#notifications").children();
 	$("#notifications").children().removeClass("selectedNotif");
+	var msg = "for all projects";
 	if(context !== "All") {
 		filteredNotifs = $("#notifications").children().filter(function() {
 			return  $(this).children(".context").html() === context;
 		});
+		msg = "for project: " + context;
 	}
+
+	$("#filtered-mode-label").html(msg);
+
 	filteredNotifs.addClass("selectedNotif");
 }
 
@@ -326,8 +348,8 @@ function Manager() {
 	this.q = new NotificationQ();
 	var self = this;
 
-	var ENTRY_FORM_ID = "entry_form";
-	$("#entry_submit").click(function(e) {
+	var ENTRY_FORM_ID = "side-task-form";
+	$("#side-task-submit").click(function(e) {
 		e.preventDefault();
 
 		var p = self.getCurrContext();
@@ -335,36 +357,57 @@ function Manager() {
 			console.log("Manager: no context");
 		}
 
-		var entry_title_selector = "#" + ENTRY_FORM_ID + " [name=entry_title]";
-		var entry_duration_selector = "#" + ENTRY_FORM_ID + " [name=entry_duration]";
+		var entry_title_selector = "#" + ENTRY_FORM_ID + " [name=entry_task_title]";
+		var entry_duration_selector = "#" + ENTRY_FORM_ID + " [name=entry_task_date]";
 		var entry_color_selector = "#" + ENTRY_FORM_ID + " select";
 		var entry_description_selector = "#" + ENTRY_FORM_ID +  " textarea";
 
 		var entryTitle = $(entry_title_selector).val();
-		var entryDuration = $(entry_duration_selector).val();
+		var entryDate = $(entry_duration_selector).val();
 		var entryColor = $(entry_color_selector).val();
 		var entryDescription = $(entry_description_selector).val();
-		p.addTask(new Task(entryTitle, null, entryDuration, entryColor, entryDescription));
+
+		p.addTask(new Task(entryTitle, null, entryDate, entryColor, entryDescription));
 	});
 
-	$("#project_submit").click(function(e) {
+	$("#project-submit").click(function(e) {
 		e.preventDefault();
 
-		var project_title_selector = "#projectui [name=project_title]";
+		var project_title_selector = "#project-form [name=project-title]";
 		var inputVal = $(project_title_selector).val();
+
 		var projectTitle = inputVal || "no project title";
 
 		if (projectTitle === "All") {
 			alert("cannot name project: All");
 			return;
 		}
-		var tasksContainer = $("#tasks");
+		var tasksContainer = $("#tasks-container");
 		var p = new Project(tasksContainer, projectTitle, self);
 
 		if(!self.addProject(p)) {
 			p.destroy();
 			alert("Cannot add project: \"" + p.title + "\". A project with the same name already exists.");
 		}
+	});
+
+	$("#sidebar_task").addClass("active-form");
+	$("#top_task").click(function(e) {
+		e.preventDefault();
+		$(".side-ui").removeClass("active-form");
+		$("#sidebar_task").addClass("active-form");
+
+
+		$(".navbar-right li").removeClass("active");
+		$(this).parent().addClass("active");
+	});
+	$("#top_project").click(function(e) {
+		e.preventDefault();
+		$(".side-ui").removeClass("active-form");
+		$("#sidebar_project").addClass("active-form");
+
+		$(".navbar-right li").removeClass("active");
+		$(this).parent().addClass("active");
 	});
 }
 Manager.prototype.addProject = function(project) {
@@ -377,18 +420,20 @@ Manager.prototype.addProject = function(project) {
 	
 
 	var self = this;
-	var optionNode = "<option value=\"" + project.title +"\">" + project.title + "</option>";
-	$("#projectselect").append(optionNode);
-	$("#projectselect").unbind();
-	$("#projectselect").change(function() {
-		var selectedContext = $(this).val();
-		self.setContext(selectedContext);
+	// var optionNode = "<option value=\"" + project.title +"\">" + project.title + "</option>";
+
+	var optionNode = $("<li role=\"presentation\"><a href=\"#\">" + project.title + "</a></li>");
+	$("#project-list").append(optionNode);
+	$(optionNode).click(function() {
+		var ctx = optionNode.find("a").html();
+		self.setContext(ctx);
 	});
 
-	$("#notif_mode").append(optionNode);
-	$("#notif_mode").unbind();
-	$("#notif_mode").change(function() {
-		var selectedContext = $(this).val();
+	var filterNode = $("<li><a href=\"#\">" + project.title + "</a></li>");
+	$("#filter-list").append(filterNode);
+	$("#filter-list li").unbind();
+	$("#filter-list li").click(function() {
+		var selectedContext = $(this).text();
 		self.q.setContext(selectedContext);
 	});
 
@@ -406,16 +451,20 @@ Manager.prototype.setContext = function(ctx) {
 	this.currProject = ctx;
 
 	var p = this.projects[this.currProject];
-	$("#projectname").empty();
-	$("#projectname").append(p.title);
-	$("#currdate").empty().append(p.date);
 
 	$(".project").addClass("inactive");
 	p.container.parent().removeClass("inactive");
 
 	this.q.setContext(ctx);
 	$("#notif_mode").val(this.currProject);
-	$("#projectselect").val(this.currProject);
+
+	// Highlight the appropriate tab
+	$("#project-list").children().removeClass("active");
+	var liNode = $("#project-list").children().filter(function() {
+		var projectTitle= $(this).find("a").html();
+		return projectTitle === ctx;
+	});
+	liNode.addClass("active");
 }
 Manager.prototype.containsProject = function(projectTitle) {
 	return (projectTitle in this.projects) && true;
@@ -427,16 +476,17 @@ Manager.prototype.notify = function(task, context, e) {
 		return;
 	}
 
+	console.log("notified");
 	var n = new Notification(task, context);
 	this.q.addNotif(n);
 }
 $(document).ready(function() {
 
-	$("#entry_duration").datepicker();
+	//$("#entry_duration").datepicker();
 
 	var m = new Manager();
 
-	var tasksContainer = $("#tasks");
+	var tasksContainer = $("#tasks-container");
 
 	var p = new Project(tasksContainer, "Become a kungfu master", m);
 	var p2 = new Project(tasksContainer, "Open a Restaurant", m);
@@ -461,7 +511,7 @@ $(document).ready(function() {
 	p2.addTask(new Task("Buy a plot of land", null, "11/1/2014"));
 	p2.addTask(new Task("Print a menu", null, "3/11/2017"));
 	p2.addTask(new Task("Grand opening!", null, "8/11/2018"));
-	p2.addTask(new Task("Bankruptcy. ", null, "6/7/2022"));
+	p2.addTask(new Task("Bankruptcy. ", null, "11/2/2014"));
 
 	var ENTRY_FORM_ID = "entry_form";
 	$("#generate_random_shit").click(function(e){
