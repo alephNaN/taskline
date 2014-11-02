@@ -154,7 +154,7 @@ Task.prototype.edit = function(other) {
 		}
 		container.empty();
 
-		setTimeout(function() { self.editing = false}, 2000);
+		setTimeout(function() { self.editing = false}, 1000);
 	});
 	container.append(form);
 }
@@ -376,12 +376,17 @@ function Manager() {
 		var project_title_selector = "#project-form [name=project-title]";
 		var inputVal = $(project_title_selector).val();
 
-		var projectTitle = inputVal || "no project title";
+		var projectTitle = inputVal;
 
+		if(!projectTitle) {
+			alert("did not supply title");
+			return;
+		}
 		if (projectTitle === "All") {
 			alert("cannot name project: All");
 			return;
 		}
+
 		var tasksContainer = $("#tasks-container");
 		var p = new Project(tasksContainer, projectTitle, self);
 
