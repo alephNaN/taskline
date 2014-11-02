@@ -58,10 +58,17 @@ var UTIL = (function() {
 		"orange": "list-group-item-warning"
 	}
 
+
+	function validateDate(testdate) {
+		var date_regex = /^(0[1-9]|1[0-2]|[1-9])\/([1-9]|0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/ ;
+		return date_regex.test(testdate);
+	}
+
 	return {
 		dateComparator: dateComparator,
 		dateObjToString: dateObjToString,
-		colorContext: colorContext
+		colorContext: colorContext,
+		validateDate: validateDate
 	}
 })();
 // invoke parent constructor of this
@@ -363,7 +370,24 @@ function Manager() {
 		var entry_description_selector = "#" + ENTRY_FORM_ID +  " textarea";
 
 		var entryTitle = $(entry_title_selector).val();
+		if(!entryTitle) {
+			alert("no title supplied");
+			return;
+		}
+		if (entryTitle.length > 40) {
+			alert("title must be less than 40 charactrs long");
+			return;
+		}
+
 		var entryDate = $(entry_duration_selector).val();
+		if (!entryDate) {
+			alert("no date specified");
+			return;
+		}
+		if (!UTIL.validateDate(entryDate)) {
+			alert("invalid date");
+			return;
+		}
 		var entryColor = $(entry_color_selector).val();
 		var entryDescription = $(entry_description_selector).val();
 
