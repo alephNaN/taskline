@@ -73,11 +73,16 @@ function Task(title, details, date, color, description) {
 	var nodeHTML = "<div class=\"task\"><div class=\"header\">" +
 					"<span class=\"title\">" + this.title + "</span>" +
 					"<span class=\"duration\">" + this.date +"</span></div>" +
-					"<div class=\"description\">"+ this.description + "</div></div>";
+					"<div class=\"description\">"+ this.description + "</div>" +
+					"<div class=\"taskedit\"><\/div></div>";
 	this.node = $(nodeHTML);
 	this.node.addClass(this.color);
 
 	var self = this;
+
+	this.node.click(function() {
+		self.edit();
+	});
 }
 // return 1 if this is greater, -1 if other is greater
 Task.prototype.compare = function(other) {
@@ -101,6 +106,36 @@ Task.prototype.isEqual = function(other) {
 	var sameDate = this.date === other.date;
 	var equal = sameTitle && sameDate;
 	return equal;
+}
+Task.prototype.edit = function(other) {
+	this.node.unbind("click");
+	var container = this.node.children(".taskedit");
+	var form = "<form>" +
+				"<textarea></textarea><button>Submit</button></form>";
+	form = $(form);
+	form.click(function(e) {
+		e.stopPropagation();
+	});
+	var self = this;
+	form.children("button").click(function(e) {
+		e.preventDefault();
+
+		var newDescription = form.children("textarea").val();
+		self.description = newDescription;
+		
+		var descriptionContainer = self.node.children(".description");
+		if (newDescription) {
+			descriptionContainer.empty();
+			descriptionContainer.append(newDescription);
+		}
+		container.empty();
+		self.editing = false;
+	});
+	container.append(form);
+
+	this.node.click(function() {
+		self.edit;
+	});
 }
 
 function Project(container, title, m) {
@@ -144,7 +179,8 @@ Project.prototype.addTask = function(task) {
 	}
 	var self = this;
 	task.node.bind("mousedown",function(e) {
-		e.preventDefault();
+		// this line is for right click , but its interfering with form elements
+		// e.preventDefault();
 		if(e.which === 2) {
 			self.m.notify(task, self.title, "remove");
 			task.destroy();
@@ -205,6 +241,7 @@ Project.prototype.destroy = function() {
 	}
 	this.context.remove();
 }
+
 function Notification(task, projectTitle) {
 	this.task = task || new Task();
 	this.projectTitle = projectTitle || "unknown projectTitle";
