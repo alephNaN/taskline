@@ -87,6 +87,12 @@
         		font-style: italic;
         		font-weight: normal
         	}
+        	.notif {
+        		display: none;
+        	}
+        	.notif.selectedNotif {
+        		display: block;
+        	}
 		</style>
 	</head>
 
@@ -162,8 +168,17 @@
 					</form>
 				</div>
 				<div>
-					<h3>Other</h3>
-					<button id="updatenotifs">Update Notifications</button>
+					<h3>Filter Notifications</h3>
+					<form class="pure-form pure-form-aligned">
+						<fieldset>
+							<div class="pure-control-group">
+								<label for="notif_mode">View Mode:</label>
+								<select id="notif_mode">
+								  <option value="All">View All</option>
+								</select>
+							</div>
+						</fieldset>
+					</form>
 				</div>
 			</div>
 			<div class="content pure-u-1 pure-u-md-16-24">

@@ -123,6 +123,9 @@ Project.prototype.addTask = function(task) {
 
 			task.domNode().insertBefore(this.container.children().eq(i));
 			this.highlightTasks([i]);
+			if(this.checkTaskImportant(task)) {
+				this.m.notify(task, this.title);
+			}
 			return;
 		}
 	}
@@ -130,6 +133,9 @@ Project.prototype.addTask = function(task) {
 	this.container.append(task.domNode());
 
 	this.highlightTasks([this.tasks.length-1]);
+	if(this.checkTaskImportant(task)) {
+		this.m.notify(task, this.title);
+	}
 
 	task.node.bind("mousedown",function(e) {
 		e.preventDefault();
@@ -147,9 +153,6 @@ Project.prototype.highlightTasks = function(indices) {
 
 				if(this.checkTaskPast(currTask))
 					currTask.markPast();
-				if (this.checkTaskImportant(currTask)) {
-					this.m.notify(currTask, this.title);
-				}
 			}
 		}
 	} else {
@@ -157,10 +160,6 @@ Project.prototype.highlightTasks = function(indices) {
 			var currTask = this.tasks[i];
 			if(this.checkTaskPast(currTask))
 				currTask.markPast();
-			if (this.checkTaskImportant(currTask)) {
-				console.log("another important");
-				this.m.notify(currTask, this.title)
-			}
 		}
 	}
 }
@@ -203,47 +202,50 @@ function Notification(task, projectTitle) {
 	this.task = task || new Task();
 	this.projectTitle = projectTitle || "unknown projectTitle";
 }
+function NotificationQ() {
+	this.notifs = {};
+	this.context = null;
 
-function NotificationQueue() {
-	this.notifs = [];
-	this.upToDate = false;
-
-	var self = this;
-	setInterval(function() {
-		self.update();
-	}, 5000);
 }
-NotificationQueue.prototype.push = function(notif) {
-	this.notifs.push(notif);
-	this.upToDate = false;
-	console.log(this.upToDate);
-}
-NotificationQueue.prototype.update = function() {
-	if (!this.upToDate) {
-		var currNotif = this.notifs[this.notifs.length - 1];
-		var currProject = currNotif.projectTitle;
-		var currTask = currNotif.task.title;
-		var node = "<div class=\"notification\">" + currTask + "</div>";
-		node = $(node)
-		node.data("project", currProject);
-		$("#notifications").append(node);
-	
-		this.upToDate = true;
+NotificationQ.prototype.addNotif = function(notif) {
+	if (!this.context) {
+		console.log("no context");
+		retturn;
 	}
+
+	console.log("inside add notif");
+	var key = notif.projectTitle;
+	var task = notif.task;
+	if (this.notifs[key]) {
+		this.notifs[key].push(task);
+	} else {
+		this.notifs[key] = [task];
+	}
+
+	var node = "<div class=\"notif\"><span class=\"context\">" + key + "</span> : " + task.title + "</div>";
+	node = $(node);
+	if (this.context === key) {
+		node.addClass("selectedNotif");
+	}
+	$("#notifications").append(node);
 }
-NotificationQueue.prototype.viewingContext = function(context) {
+NotificationQ.prototype.setContext = function(context) {
+	console.log("setting context" + context);
 	this.context = context;
-}
 
-NotificationQueue.prototype.print = function() {
-	for (var i = 0 ; i < this.notifs.length; i++) {
-		console.log(this.notifs[i]);
+	var filteredNotifs = $("#notifications").children();
+	$("#notifications").children().removeClass("selectedNotif");
+	if(context !== "All") {
+		filteredNotifs = $("#notifications").children().filter(function() {
+			return  $(this).children(".context").html() === context;
+		});
 	}
+	filteredNotifs.addClass("selectedNotif");
 }
-
 function Manager() {
 	this.projects = {};
 	this.currProject = -1;
+	this.q = new NotificationQ();
 	var self = this;
 
 	var ENTRY_FORM_ID = "entry_form";
@@ -273,18 +275,18 @@ function Manager() {
 		var inputVal = $(project_title_selector).val();
 		var projectTitle = inputVal || "no project title";
 
+		if (projectTitle === "All") {
+			alert("cannot name project: All");
+			return;
+		}
 		var tasksContainer = $("#tasks");
-		var p = new Project(tasksContainer, projectTitle);
+		var p = new Project(tasksContainer, projectTitle, self);
 
 		if(!self.addProject(p)) {
 			p.destroy();
 			alert("Cannot add project: \"" + p.title + "\". A project with the same name already exists.");
 		}
 	});
-}
-Manager.prototype.notify = function(task, projectTitle) {
-	console.log('unimplemented');
-	// update the notif q
 }
 Manager.prototype.addProject = function(project) {
 	var isDuplicate = this.containsProject(project.title);
@@ -293,7 +295,7 @@ Manager.prototype.addProject = function(project) {
 	}
 
 	this.projects[project.title] = project;
-	this.setContext(project.title);
+	
 
 	var self = this;
 	var optionNode = "<option value=\"" + project.title +"\">" + project.title + "</option>";
@@ -304,8 +306,14 @@ Manager.prototype.addProject = function(project) {
 		self.setContext(selectedContext);
 	});
 
-	$("#projectselect").val(this.currProject);
+	$("#notif_mode").append(optionNode);
+	$("#notif_mode").unbind();
+	$("#notif_mode").change(function() {
+		var selectedContext = $(this).val();
+		self.q.setContext(selectedContext);
+	});
 
+	this.setContext(project.title);
 	return true;
 }
 Manager.prototype.getCurrContext = function() {
@@ -315,6 +323,7 @@ Manager.prototype.getCurrContext = function() {
 	return this.projects[this.currProject];
 }
 Manager.prototype.setContext = function(ctx) {
+	console.log("Manager"+ ctx);
 	this.currProject = ctx;
 
 	var p = this.projects[this.currProject];
@@ -324,11 +333,19 @@ Manager.prototype.setContext = function(ctx) {
 
 	$(".project").addClass("inactive");
 	p.container.parent().removeClass("inactive");
+
+	this.q.setContext(ctx);
+	$("#notif_mode").val(this.currProject);
+	$("#projectselect").val(this.currProject);
 }
 Manager.prototype.containsProject = function(projectTitle) {
-	return projectTitle in this.projects;
+	return (projectTitle in this.projects) && true;
 }
-
+Manager.prototype.notify = function(task, context) {
+	var n = new Notification(task, context);
+	console.log("received notification" + task + ", " + context);
+	this.q.addNotif(n);
+}
 $(document).ready(function() {
 
 	var m = new Manager();
