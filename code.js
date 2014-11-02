@@ -79,7 +79,7 @@ function Task(title, details, date, color, description) {
 	this.description = description || "no description";
 	this.editing = false;
 
-	var nodeHTML = "<a class=\"list-group-item " + this.color +"\">" +
+	var nodeHTML = "<a href=\"#\" class=\"list-group-item " + this.color +"\">" +
 	  			  "<button type=\"button\" class=\"close\" data-dismiss=\"alert\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>" +
 	  			  "<div class=\"task-header\"><strong><span class=\"task-title\">" + this.title + "</span></strong> </div>" +
 	  			  "<div><span class=\"task-date\">" + this.date + "</span>" +
@@ -481,8 +481,7 @@ Manager.prototype.notify = function(task, context, e) {
 	this.q.addNotif(n);
 }
 $(document).ready(function() {
-
-	//$("#entry_duration").datepicker();
+	$("#datepicker").datepicker();
 
 	var m = new Manager();
 

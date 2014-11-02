@@ -11,7 +11,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="bootstrap.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="jquery-ui-1.9.2.custom/css/ui-lightness/jquery-ui-1.9.2.custom.min.css">
     <!-- Custom styles for this template -->
     <link href="dashboard.css" rel="stylesheet">
 
@@ -75,14 +75,14 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right" role="tablist">
-            <li class="active"><a href="" id="top_task">Add Task</a></li>
-            <li><a href="" id="top_project">New Project</a></li>
+            <li class="active"><a href="#" id="top_task">Add Task</a></li>
+            <li><a href="#" id="top_project">New Project</a></li>
 			<li role="presentation" class="dropdown">
 			  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
 			    Show Notifications<span class="caret"></span>
 			  </a>
 			  <ul class="dropdown-menu" role="menu" id="filter-list">
-				<li><a href="">All</a></li>
+				<li><a href="#">All</a></li>
 			  </ul>
 			</li>
           </ul>
@@ -108,7 +108,7 @@
 	          	<label>Title:</label>
 	          	<input type="text" class="form-control" placeholder="Title" name="entry_task_title">
 	          	<label>Date:</label>
-	          	<input type="text" class="form-control" placeholder="Date" name="entry_task_date">
+	          	<input type="text" class="form-control" placeholder="Date" name="entry_task_date" id="datepicker">
 	          	<label>Color:</label>
 				<select class="form-control">
 				  <option>blue</option>
@@ -133,77 +133,14 @@
 			</ul>
 		</div>
 
-        <h2>Tasks</h2>
-		<div class="panel">
-		  <!-- Default panel contents -->
-			<ul class="nav nav-tabs" role="tablist" id="project-list">
-			  <!-- <li role="presentation" class="active"><a href="#">Home</a></li>
-			  <li role="presentation"><a href="#">Profile</a></li>
-			  <li role="presentation"><a href="#">Messages</a></li>-->
-			</ul>
-			<div id="tasks-container">
-          	<div class="list-group project">
-			 	<a class="list-group-item list-group-item-info">
-	  			  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-
-	  			  <strong>Eat Ice Cream</strong>
-				 	<div>
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.
-					</div>
-	  			</a>
-			  <a class="list-group-item list-group-item-success">
-	  			  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-
-	  			  <strong>Eat Ice Cream</strong>
-				 	<div>
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.
-					</div>
-			  	</a>
-			  <a class="list-group-item list-group-item-warning">
-			  	 <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-
-	  			  <strong>Eat Ice Cream </strong>
-				 	<div>
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.
-					</div>
-				</a>
-			  <a class="list-group-item list-group-item-danger">
-	  			  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-	  			  <div><strong><span class="task-title">Eat Ice Cream</span></strong> <span class="label label-primary">Today</span> 
-	  			  <br/>
-	  			   <span class="task-date">12/24/2014</span>
-	  			   </div>
-				 	<div>
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.
-					  Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.Better check yourself, you're not looking too good.
-					</div>
-				</a>
+	        <h2>Tasks</h2>
+			<div class="panel">
+			  <!-- Default panel contents -->
+				<ul class="nav nav-tabs" role="tablist" id="project-list">
+				</ul>
+				<div id="tasks-container">
+				</div>
 			</div>
-		</div>
-		</div>
         </div>
       </div>
     </div>
@@ -213,10 +150,11 @@
     <!-- Placed at the end of the document so the pages load faster -->
 
 	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+	<script src="jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
 	<script type="text/javascript" src="code.js"></script>
     <script src="bootstrap.min.js"></script>
     <script src="docs.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
