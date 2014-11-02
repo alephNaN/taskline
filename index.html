@@ -7,10 +7,10 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Dashboard Template for Bootstrap</title>
+    <title>Taskline</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="jquery-ui-1.9.2.custom/css/ui-lightness/jquery-ui-1.9.2.custom.min.css">
     <!-- Custom styles for this template -->
     <link href="dashboard.css" rel="stylesheet">
@@ -57,6 +57,9 @@
     		background-color: #eee;
     	}
 
+        #notifications .context {
+            display: none;
+        }
     </style>
   </head>
 
@@ -75,8 +78,8 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right" role="tablist">
-            <li class="active"><a href="#" id="top_task">Add Task</a></li>
-            <li><a href="#" id="top_project">New Project</a></li>
+            <li class="active"><a href="#" id="top_task"><span class="glyphicon glyphicon-plus"></span> Add Task</a></li>
+            <li><a href="#" id="top_project"><span class="glyphicon glyphicon-folder-open"></span> New Project</a></li>
 			<li role="presentation" class="dropdown">
 			  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
 			    Show Notifications<span class="caret"></span>
@@ -94,16 +97,15 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <div class="side-ui" id="sidebar_project">
-          	<h3>New Project</h3>
+          	<h3><span class="glyphicon glyphicon-folder-open"></span> New Project</h3>
 	          <form id="project-form">
-	          	<label>Project Title:</label>
-	          	<input type="text" class="form-control" placeholder="Project Title" name="project-title">
+	          	<input type="text" class="form-control" placeholder="Project Title" name="project-title"><br>
 				<button type="submit" class="btn btn-primary" id="project-submit">Submit</button>
 
 	          </form>
 	      </div>
 	      <div class="side-ui" id="sidebar_task">
-	          <h3>Add Task</h3>
+	          <h3><span class="glyphicon glyphicon-plus"></span> Add Task</h3>
 	          <form id="side-task-form">
 	          	<label>Title:</label>
 	          	<input type="text" class="form-control" placeholder="Title" name="entry_task_title">
@@ -117,7 +119,7 @@
 				  <option>orange</option>
 				</select>
 	          	<label>Description:</label>
-				<textarea class="form-control" rows="3">no description</textarea>
+				<textarea class="form-control" rows="3">no description</textarea><br />
 				<button type="submit" class="btn btn-primary" id="side-task-submit">Submit</button>
 	          </form>
 	      </div>
@@ -133,7 +135,7 @@
 			</ul>
 		</div>
 
-	        <h2>Tasks</h2>
+	        <h2><span class="glyphicon glyphicon-tasks"></span> Tasks</h2>
 			<div class="panel">
 			  <!-- Default panel contents -->
 				<ul class="nav nav-tabs" role="tablist" id="project-list">
@@ -152,7 +154,7 @@
 	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 	<script src="jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
 	<script type="text/javascript" src="code.js"></script>
-    <script src="bootstrap.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script src="docs.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="ie10-viewport-bug-workaround.js"></script>

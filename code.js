@@ -289,7 +289,7 @@ NotificationQ.prototype.addNotif = function(notif) {
 	var task = notif.task;
 
 	var node = "<li class=\"list-group-item notif\">" +
-			   "<span class=\"context\">" + key + "</span> : " + task.title + 
+			   "<span class=\"context\">" + key + "</span> " + task.title + 
 			   "</li>";
 	node = $(node);
 	if (this.context === key) {
