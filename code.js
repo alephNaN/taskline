@@ -94,7 +94,12 @@ Task.prototype.destroy = function() {
 Task.prototype.markPast = function() {
 	this.node.addClass("past");
 }
-
+Task.prototype.isEqual = function(other) {
+	var sameTitle = this.title === other.title;
+	var sameDate = this.date === other.date;
+	var equal = sameTitle && sameDate;
+	return equal;
+}
 function Project(container, title, m) {
 	this.tasks = [];
 	this.title = title || "no project title";
@@ -114,32 +119,31 @@ Project.prototype.addTask = function(task) {
 	if (this.tasks.length === 0) {
 		this.context.removeClass("emptyproject");
 	}
-
 	for(var i = 0; i < this.tasks.length; i++) {
 		var currTask= this.tasks[i];
 		var cmp = currTask.compare(task);
 		if (cmp === 1) {
-			this.tasks.splice(i, 0, task);
-
-			task.domNode().insertBefore(this.container.children().eq(i));
-			this.highlightTasks([i]);
-			if(this.checkTaskImportant(task)) {
-				this.m.notify(task, this.title);
-			}
-			return;
+			break;
 		}
 	}
-	this.tasks.push(task);
-	this.container.append(task.domNode());
-
-	this.highlightTasks([this.tasks.length-1]);
+	if(i === this.tasks.length) {
+		this.tasks.push(task);
+		this.container.append(task.domNode());
+		this.highlightTasks([this.tasks.length-1]);
+	} else {
+		this.tasks.splice(i, 0, task);
+		task.domNode().insertBefore(this.container.children().eq(i));
+		this.highlightTasks([i]);
+	}
+	
 	if(this.checkTaskImportant(task)) {
 		this.m.notify(task, this.title);
 	}
-
+	var self = this;
 	task.node.bind("mousedown",function(e) {
 		e.preventDefault();
 		if(e.which === 2) {
+			self.m.notify(task, self.title, "remove");
 			task.destroy();
 		}
 	});
@@ -216,11 +220,6 @@ NotificationQ.prototype.addNotif = function(notif) {
 	console.log("inside add notif");
 	var key = notif.projectTitle;
 	var task = notif.task;
-	if (this.notifs[key]) {
-		this.notifs[key].push(task);
-	} else {
-		this.notifs[key] = [task];
-	}
 
 	var node = "<div class=\"notif\"><span class=\"context\">" + key + "</span> : " + task.title + "</div>";
 	node = $(node);
@@ -228,7 +227,39 @@ NotificationQ.prototype.addNotif = function(notif) {
 		node.addClass("selectedNotif");
 	}
 	$("#notifications").append(node);
+
+	var taskTuple = {
+		"task": task,
+		"node": node
+	};
+	if (this.notifs[key]) {
+		this.notifs[key].push(taskTuple);
+	} else {
+		this.notifs[key] = [taskTuple];
+	}
+
 }
+NotificationQ.prototype.removeNotif = function(notif) {
+	console.log("NotificationQ.removeNotif");
+	var key = notif.projectTitle;
+	var task = notif.task;
+
+	console.log("key" + key);
+	console.log(this.notifs[key]);
+	var relevantTasks = this.notifs[key];
+	if(relevantTasks) {
+		for(var i = 0 ; i < relevantTasks.length; i++) {
+			var currTuple = relevantTasks[i];
+			var currTask = currTuple["task"];
+			var currNode = currTuple["node"];
+			if (currTask.isEqual(task)) {
+				currNode.remove();
+				relevantTasks.splice(i, 1);
+			}
+		}
+	}
+}
+
 NotificationQ.prototype.setContext = function(context) {
 	console.log("setting context" + context);
 	this.context = context;
@@ -242,6 +273,7 @@ NotificationQ.prototype.setContext = function(context) {
 	}
 	filteredNotifs.addClass("selectedNotif");
 }
+
 function Manager() {
 	this.projects = {};
 	this.currProject = -1;
@@ -341,9 +373,14 @@ Manager.prototype.setContext = function(ctx) {
 Manager.prototype.containsProject = function(projectTitle) {
 	return (projectTitle in this.projects) && true;
 }
-Manager.prototype.notify = function(task, context) {
+Manager.prototype.notify = function(task, context, e) {
+	if (e === "remove") {
+		console.log("Manager: removing");
+		this.q.removeNotif(new Notification(task, context));
+		return;
+	}
+
 	var n = new Notification(task, context);
-	console.log("received notification" + task + ", " + context);
 	this.q.addNotif(n);
 }
 $(document).ready(function() {
